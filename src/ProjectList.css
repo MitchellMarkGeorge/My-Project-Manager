@@ -1,0 +1,14 @@
+.project-list {
+    /* color: antiquewhite; */
+    text-align: center;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    background-color: #dbdbdb;
+}
+
+.no-project {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+}

@@ -1,0 +1,14 @@
+
+.test {
+    padding: 10px;
+    height: 80px;
+    border-bottom: 1px solid #adadad;
+}
+
+.test:hover {
+    background-color: #adadad;
+}
+
+.test:active {
+    background-color: #adadad;
+}
