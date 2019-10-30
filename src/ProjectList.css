@@ -5,10 +5,21 @@
     width: 100%;
     height: 100%;
     background-color: #dbdbdb;
+    position: relative;
 }
 
 .no-project {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: normal;
+
+   
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    
+    
 }
+
+
+/* .button {
+    width: 50px;
+    text-align: center;
+} */

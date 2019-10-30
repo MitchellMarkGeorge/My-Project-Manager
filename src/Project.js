@@ -1,10 +1,13 @@
-class Project {
+export class Project {
     name;
-    current_features;
-    features_to_implement;
-    bugs_and_issues;
+    type;
+    items = []
 
-    constructor() {
+    
+}
 
-    }
+export class ProjectSubItme {
+    name;
+    description;
+    rating;
 }
