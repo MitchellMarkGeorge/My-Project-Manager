@@ -24,6 +24,7 @@ const electron = window.require('electron');
 // Notes
 //- Need to work on build scripts (look at React Electron Tutorials)
 // - All features will use shortcuts
+  // after any updates, the project list should be updated
 
 ReactModal.setAppElement('#root')
 let db = new DB({filename: (electron.app || electron.remote.app).getPath('userData'), autoload: true});
@@ -31,15 +32,15 @@ let db = new DB({filename: (electron.app || electron.remote.app).getPath('userDa
 //const electron = window.require('electron');
 
 
-const SortableItem = SortableElement(({value}) => <li className="list">{value}</li>);
+const SortableItem = SortableElement(({value}) => <p className="list">{value}</p>); {/* Can also be a listitem <li></li> */}
 
-const SortableList = SortableContainer(({items}) => {
-  return (
-    <ul>
+const SortableList = SortableContainer(({items}) => {   // find way to make item list itself scrollable (overflow: auto;)
+  return (    
+    <div className="list-container"> {/* Can also be a list <ul></ul> */}
       {items.map((value, index) => (
-        <SortableItem key={`item-${value}`} index={index} value={value} />
+        <SortableItem key={index} index={index} value={`${value} - ${index + 1}`} />
       ))}
-    </ul>
+    </div>
   );
 });
 
@@ -51,7 +52,7 @@ class App extends Component {
     this.getDocID = this.getDocID.bind(this);
     this.disableModal = this.disableModal.bind(this);
     this.displayModal = this.displayModal.bind(this);
-    this.loadProjects = this.loadProjects.bind(this);
+    // this.loadProjects = this.loadProjects.bind(this);
     //this.onSortEnd = this.onSortEnd.bind(this);
 
     this.state = {
@@ -74,9 +75,9 @@ class App extends Component {
     // this.insertDoc('Adam', 'Police');
 
     // let test_project = new Project()
-    // test_project.name = 'ListTest';
+    // test_project.name = 'ListTest2';
     // test_project.type = 67;
-    // test_project.items.push("Hello", "WHY", "4", "0", "oops", "12232", "hahaha", "7979", "heheehe", "upepe");
+    // test_project.items.push("Hello", "WHY", "4", "0", "oops", "12232", "hahaha", "7979", "heheehe", "upepe", "ahhh", "mummy");
 
     //  db.insert(test_project);
 
@@ -119,6 +120,11 @@ class App extends Component {
     
   }
 
+  addItemtoData = (element) => {
+    this.setState({data_list: [element.target.value, ...this.state.data_list]})
+    this.loadProjects()
+  }
+
   getDocID(data) {
     this.setState({data: data, data_list: [...data.items]})
     console.log(data);
@@ -134,7 +140,7 @@ class App extends Component {
     //console.log(this.state.showModal);
   }
 
-  loadProjects() {
+  loadProjects = () =>  {
     db.find({}, (err, data) => {
         if (!err) {
           console.log(data);
@@ -148,13 +154,13 @@ class App extends Component {
 
 
     render() {
-    return (
+      return (
       <div>
       <SplitPane split="vertical" minSize={230} defaultSize={230} maxSize={400}>
         
         <ProjectList list={this.state.list} func={this.getDocID} displayModal={this.displayModal.bind(this)} disableModal={this.disableModal.bind(this)}/>
         {/* shoudl i bind "this" here or in constructor */}
-        <ProjectPage data={this.state.data} data_items={this.state.data_list} onEnd={this.onSortEnd}/>
+        <ProjectPage data={this.state.data} data_items={this.state.data_list} onEnd={this.onSortEnd} addItem={this.addItemtoData} loadProjects={this.loadProjects}/>
         
         {/* <ProjectPage projectslist={this.state.list} data={this.state.data}/> */}
         
@@ -232,11 +238,14 @@ class ProjectList extends Component {
 }
 
 class ProjectPage extends Component {
+
+  // after any updates, the project list should be updated
   constructor(props) {
     super(props);
 
     this.state = {
       current_object: undefined,
+      input_value: ''
       
       
     }
@@ -255,9 +264,29 @@ class ProjectPage extends Component {
         current_object: props.data,
         
         
+        
       };
     }
     return null;
+  }
+
+  handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      console.log(e.target.value);
+     
+      this.props.addItem(e);
+      
+    } else return;
+  }
+
+  update = () => {
+    db.update({_id: this.props.data._id}, {$set: {items: this.props.data_items}}, (err, num) => {
+      if (!err) {
+        this.props.loadProjects();
+       } //else {
+      //   this.props.loadProjects();
+      // }
+    })
   }
 
   
@@ -274,14 +303,20 @@ class ProjectPage extends Component {
 
       <h1 className="project-title" >{data ? `${data.name}` : 'No Project Selected'}</h1>
       {!data && <h3>Selected Projects will show here.</h3>}
-      <h3>{data ? `${data._id}`: ''}</h3>
-      <h3>{data ? `Type: ${data.type}`: ''}</h3>
+      {data && <button className="button" onClick={this.update}>Save Changed Project Details</button>}
+      {/* <h3>{data ? `${data._id}`: ''}</h3>
+      <h3>{data ? `Type: ${data.type}`: ''}</h3> */}
+      {data && <input className="input" onKeyDown={this.handleKeyDown} placeholder="Enter new Project Item Here" defaultValue={this.state.input_value}></input>}
       {/* <h4>{this.state.current_object ? `${this.state.current_object._id}`: 'None'}</h4> */}
       {/* <ul>
         {this.props.data_items.map(items => <li>{items}</li>)}
       </ul> */}
 
-      <SortableList items={this.props.data_items} onSortEnd={this.props.onEnd}/>
+      
+
+{/* onChange={this.props.addItem} */}
+      
+      {data && <SortableList items={this.props.data_items} onSortEnd={this.props.onEnd}/>}
       
     </div>
     );
