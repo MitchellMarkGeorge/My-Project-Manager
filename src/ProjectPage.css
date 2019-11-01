@@ -12,10 +12,19 @@
     margin-bottom: 40px;
 }
 
+/* .sort-div {
+    display: inline;   
+} */
+
+.del-button {
+    display: inline;
+    /* float: right; */
+}
 
 .list {
     /* border: 1px solid #000000; */
     /* height: 40px; */
+    
     width: 100%;
     border-radius: 3px;
     text-align: center;
@@ -42,13 +51,14 @@
  }
 
 .input {
+    padding: 10px;
     width: 170px;
     position: relative;
     z-index: 0;
     background-color: #fff;
     border: 1px solid #efefef;
     border-radius: 3px;
-    height: 40px;
+    /* height: 40px; */
     /* margin-left: 20px; */
     text-align: center;
     /* margin-top: 40px; */
@@ -58,12 +68,12 @@
     margin-top: 40px;
     position: relative;
     z-index: 0;
-    background-color: #f3f3f3;
-    border: 1px solid #efefef;
+    /* background-color: #f3f3f3; */
+    /* border: 1px solid #efefef; */
     border-radius: 3px;
     outline: none;
     width: 400px;
-    height: 400px;
+    height: 65%;
     overflow: auto;
 }
 

@@ -32,13 +32,19 @@ let db = new DB({filename: (electron.app || electron.remote.app).getPath('userDa
 //const electron = window.require('electron');
 
 
-const SortableItem = SortableElement(({value}) => <p className="list">{value}</p>); {/* Can also be a listitem <li></li> */}
+const SortableItem = SortableElement(({value, onRemove, idx}) => 
+<div className="sort-div">
+  <p className="list"><b>{`(${idx + 1})`}</b> {value} <button className="del-button" onClick={() => onRemove(idx)}> Delete</button></p> 
+  
+</div>); {/* Can also be a listitem <li></li> */}
 
-const SortableList = SortableContainer(({items}) => {   // find way to make item list itself scrollable (overflow: auto;)
+const SortableList = SortableContainer(({items, onRemove}) => {   // find way to make item list itself scrollable (overflow: auto;)
   return (    
     <div className="list-container"> {/* Can also be a list <ul></ul> */}
       {items.map((value, index) => (
-        <SortableItem key={index} index={index} value={`${value} - ${index + 1}`} />
+        <SortableItem key={index} index={index} idx={index} value={`${value} - ${index + 1}`} onRemove={onRemove}/>
+       
+        
       ))}
     </div>
   );
@@ -111,7 +117,23 @@ class App extends Component {
     this.setState(({data_list}) => ({
       data_list: arrayMove(data_list, oldIndex, newIndex),
     }));
+
+    db.update({_id: this.state.data._id}, {$set: {items: this.state.data_list}}, (err, num) => {
+      if (!err) {
+        this.loadProjects();
+       } //else {
+      //   this.props.loadProjects();
+      // }
+    })
  
+  }
+
+  removeItem = (index) => {
+    console.log(index)
+    let list = this.state.data_list;
+    list.splice(index, 1);
+
+    this.setState({data_list: list})
   }
 
   insertDoc = (name, type) => {
@@ -121,8 +143,27 @@ class App extends Component {
   }
 
   addItemtoData = (element) => {
-    this.setState({data_list: [element.target.value, ...this.state.data_list]})
-    this.loadProjects()
+
+    console.log(element);
+
+    //if (element.target.value === '') return;
+    
+    //  this.setState({data_list: this.state.data_list.push(ele)});
+    this.setState({data_list: [element, ...this.state.data_list]}, () => {
+      db.update({_id: this.state.data._id}, {$set: {items: this.state.data_list}}, (err, num) => {
+        if (!err) {
+          this.loadProjects();
+         } //else {
+        //   this.props.loadProjects();
+        // }
+      })
+    });
+    // this.setState((prevstate) => ({
+    //   data_list: [element, ...prevstate.data_list]
+    // }));
+    
+    
+ 
   }
 
   getDocID(data) {
@@ -160,7 +201,7 @@ class App extends Component {
         
         <ProjectList list={this.state.list} func={this.getDocID} displayModal={this.displayModal.bind(this)} disableModal={this.disableModal.bind(this)}/>
         {/* shoudl i bind "this" here or in constructor */}
-        <ProjectPage data={this.state.data} data_items={this.state.data_list} onEnd={this.onSortEnd} addItem={this.addItemtoData} loadProjects={this.loadProjects}/>
+        <ProjectPage data={this.state.data} data_items={this.state.data_list} onEnd={this.onSortEnd} addItem={this.addItemtoData} loadProjects={this.loadProjects} removeItem={this.removeItem}/>
         
         {/* <ProjectPage projectslist={this.state.list} data={this.state.data}/> */}
         
@@ -274,7 +315,12 @@ class ProjectPage extends Component {
     if (e.key === 'Enter') {
       console.log(e.target.value);
      
-      this.props.addItem(e);
+      this.props.addItem(e.target.value);
+      //this.setState({input_value: ''})
+
+      // this.setState(() => ({
+      //   input_value: ''
+      // }));
       
     } else return;
   }
@@ -288,6 +334,17 @@ class ProjectPage extends Component {
       // }
     })
   }
+
+  delete = (index) => {
+    this.props.removeItem(index)
+    this.update()
+  }
+
+  // removeItem = (index) => {
+  //   console.log(index)
+  //   let list = this.props.data_items;
+    
+  // }
 
   
   
@@ -303,7 +360,7 @@ class ProjectPage extends Component {
 
       <h1 className="project-title" >{data ? `${data.name}` : 'No Project Selected'}</h1>
       {!data && <h3>Selected Projects will show here.</h3>}
-      {data && <button className="button" onClick={this.update}>Save Changed Project Details</button>}
+      {/* {data && <button className="button" onClick={this.update}>Save Changed Project Details</button>} */}
       {/* <h3>{data ? `${data._id}`: ''}</h3>
       <h3>{data ? `Type: ${data.type}`: ''}</h3> */}
       {data && <input className="input" onKeyDown={this.handleKeyDown} placeholder="Enter new Project Item Here" defaultValue={this.state.input_value}></input>}
@@ -316,8 +373,9 @@ class ProjectPage extends Component {
 
 {/* onChange={this.props.addItem} */}
       
-      {data && <SortableList items={this.props.data_items} onSortEnd={this.props.onEnd}/>}
-      
+      {/* {data && <SortableList items={this.props.data_items} onSortEnd={this.props.onEnd} onRemove={(index) => this.props.removeItem(index)}/>} */}
+      {data && this.props.data_items.length > 0 && <SortableList items={this.props.data_items} onSortEnd={this.props.onEnd} onRemove={(index) => this.delete(index)}/>}      
+      {!this.props.data_items.length > 0 &&  <p>No Project Items</p>}
     </div>
     );
   }
