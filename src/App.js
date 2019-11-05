@@ -6,6 +6,8 @@ import './App.css';
 import './ProjectPage.css';
 import './ProjectList.css';
 import './ProjectItem.css';
+// import Swipeout from 'rc-swipeout'; // Make this work??????
+// import 'rc-swipeout/assets/index.css';
 // const Store  = window.require('electron-store');
 import SplitPane from 'react-split-pane';
 import * as DB from 'nedb';
@@ -13,11 +15,13 @@ import ReactModal from 'react-modal';
 import {Project} from './Project.js';
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 import * as arrayMove from 'array-move';
+// import { MenuItem } from 'electron';
 
 
 
 
 const electron = window.require('electron');
+
 //const isDev = window.require('electron-is-dev');
 
 
@@ -33,16 +37,17 @@ let db = new DB({filename: (electron.app || electron.remote.app).getPath('userDa
 
 
 const SortableItem = SortableElement(({value, onRemove, idx}) => 
-<div className="sort-div">
-  <p className="list"><b>{`(${idx + 1})`}</b> {value} <button className="del-button" onClick={() => onRemove(idx)}> Delete</button></p> 
-  
+<div className="list">
+  <b style={{marginRight: '5px'}}>{`(${idx + 1})`}</b>
+  <p style={{overflow: 'auto'}}> {value} </p> 
+  <button className="del-button" onClick={() => onRemove(idx)}>X</button>
 </div>); {/* Can also be a listitem <li></li> */}
 
 const SortableList = SortableContainer(({items, onRemove}) => {   // find way to make item list itself scrollable (overflow: auto;)
   return (    
     <div className="list-container"> {/* Can also be a list <ul></ul> */}
       {items.map((value, index) => (
-        <SortableItem key={index} index={index} idx={index} value={`${value} - ${index + 1}`} onRemove={onRemove}/>
+        <SortableItem key={index} index={index} idx={index} value={value} onRemove={onRemove}/>
        
         
       ))}
@@ -58,6 +63,8 @@ class App extends Component {
     this.getDocID = this.getDocID.bind(this);
     this.disableModal = this.disableModal.bind(this);
     this.displayModal = this.displayModal.bind(this);
+    
+    //this.addNewProject = this.addNewProject.bind(this);
     // this.loadProjects = this.loadProjects.bind(this);
     //this.onSortEnd = this.onSortEnd.bind(this);
 
@@ -65,7 +72,8 @@ class App extends Component {
       list: [],
       data: undefined,
       showModal: false,
-      data_list: []
+      data_list: [],
+      editEnabled: false
       
             
     }
@@ -111,6 +119,13 @@ class App extends Component {
 
   componentDidMount() {
     // might load projects in here
+    // const menu = electron.Menu();
+
+    // menu.addend(new electron.remote.MenuItem({
+    //   label: 'New Project',
+    //   accelerator: 'CmdOrCtrl+N',
+    //   click: () => {this.displayModal.bind(this)}
+    // }))
   }
 
   onSortEnd = ({oldIndex, newIndex}) => {
@@ -146,7 +161,7 @@ class App extends Component {
 
     console.log(element);
 
-    //if (element.target.value === '') return;
+    if (element === '') return;
     
     //  this.setState({data_list: this.state.data_list.push(ele)});
     this.setState({data_list: [element, ...this.state.data_list]}, () => {
@@ -167,16 +182,22 @@ class App extends Component {
   }
 
   getDocID(data) {
+    if (this.state.editEnabled) return;
     this.setState({data: data, data_list: [...data.items]})
     console.log(data);
   }
 
   displayModal() {
+    // if (this.state.editEnabled) return;
+    if (this.state.editEnabled) {
+      this.setState({editEnabled: false});
+    }
     this.setState({showModal: true});
     //console.log(this.state.showModal);
   }
 
   disableModal() {
+    
     this.setState({showModal: false});
     //console.log(this.state.showModal);
   }
@@ -193,13 +214,58 @@ class App extends Component {
       })
   }
 
+  addNewProject = (event) => {
+    
+    if (event.key === 'Enter') {
+      //console.log(event.target.value);
+      // this.disableModal();
+      let newProject = new Project();
+      newProject.name = event.target.value
+      newProject.type = '';
+      db.insert(newProject);
+      this.loadProjects();
+      if (this.state.editEnabled) {
+        this.setState({editEnabled: false})
+      }
+      //console.log(this.state.showModal);
+    } else return;
+  }
+
+  toggleEdit = () => {
+    this.setState({editEnabled: !this.state.editEnabled});
+  }
+
+  removeProject = (project) => {
+    console.log('here')
+    if (this.state.data !== undefined && project._id === this.state.data._id) {
+      this.setState({data: undefined})
+    }
+    
+    db.remove({ _id: project._id }, {}, (err) => {
+      if (err) {
+        console.log(err)
+      } else if (!err) {
+        
+        console.log('removed ' + project.name)
+        
+        this.loadProjects();
+
+        // this.setState({editEnabled: false})
+      }
+    })
+    
+  }
+
+  
+
 
     render() {
       return (
       <div>
-      <SplitPane split="vertical" minSize={230} defaultSize={230} maxSize={400}>
+      <SplitPane split="vertical" minSize={0} defaultSize={230} maxSize={230}>
+      {/* this was the minsize before: minSize={230} {now, it is fully colaplable} {maxSize was 400 (felt it was too big)} */}
         
-        <ProjectList list={this.state.list} func={this.getDocID} displayModal={this.displayModal.bind(this)} disableModal={this.disableModal.bind(this)}/>
+        <ProjectList list={this.state.list} func={this.getDocID} displayModal={this.displayModal.bind(this)} disableModal={this.disableModal.bind(this)} editEnabled={this.state.editEnabled} toggleEdit={this.toggleEdit} removeProject={this.removeProject}/>
         {/* shoudl i bind "this" here or in constructor */}
         <ProjectPage data={this.state.data} data_items={this.state.data_list} onEnd={this.onSortEnd} addItem={this.addItemtoData} loadProjects={this.loadProjects} removeItem={this.removeItem}/>
         
@@ -209,9 +275,15 @@ class App extends Component {
         
       </SplitPane>
 
-      <ReactModal isOpen={this.state.showModal} contentLabel="Example Modal">
-        <div>Hello</div>
-        <button onClick={this.disableModal}>Close Me</button>
+      <ReactModal isOpen={this.state.showModal} contentLabel="New Project Modal" className="modal">
+        <div style={{textAlign: 'center'}}>
+          <h2 style={{textAlign: 'center'}}>Input the name for your new Project.</h2>
+          <input className="input-modal" onKeyDown={this.addNewProject}></input>
+          <button onClick={this.disableModal} className="close-button">Close Modal</button>
+          <p style={{fontSize: "12px"}}>Once Project is made, close this modal.</p>
+        </div>
+        {/* <button style={{textAlign: 'center'}} onClick={this.disableModal}>Close Me</button> */}
+        
       </ReactModal>
 
     </div>
@@ -242,30 +314,31 @@ class App extends Component {
 
 class ProjectList extends Component {
  
-  getItem(data) {
-    console.log(data._id);
-    //console.log(e);
-  }
-
+ 
   render() {
     //let list = this.state.list;
     return (
     <div className="project-list">
+      {this.props.list.length > 0 && <div style={{position: "sticky", top: 0, zIndex: 1, backgroundColor: "#adadad"}}>
+      {this.props.list.length > 0 && <button className="add-button" onClick={this.props.displayModal.bind(this)}>Add</button>}
+      {this.props.list.length > 0 && <button className="add-button" onClick={this.props.toggleEdit}>Edit</button>}
+      </div>}
 
       {this.props.list.length === 0 && 
       <div className="no-project">
         <p>No Projects Here.</p>
         <p>Would you like to make a Project?</p>
-        <button className="button" onClick={this.props.displayModal.bind(this)}>Make Project</button>
+        <button className="close-button" onClick={this.props.displayModal.bind(this)}>Make Project</button>
       </div>} 
       
       {this.props.list.map((item) => 
-      <div key={item._id} onClick={this.props.func.bind(this, item)} className="test">
-        <p className="project-name">{item.name}</p>
-      </div>)}
+        <div key={item._id} onClick={this.props.func.bind(this, item)} className="test">
+          <p className="project-name">{item.name}</p>
+          {this.props.editEnabled && <button onClick={this.props.removeProject.bind(this, item)} className="del-button-project">X</button>}
+        </div>)}
 
-      {/* <button onClick={this.props.displayModal.bind(this)}>Hey Modal</button>
-      <button onClick={this.props.disableModal.bind(this)}>Close Modal</button> */}
+      
+      {/* <button onClick={this.props.disableModal.bind(this)}>Close Modal</button> */}
 
       
     
@@ -375,7 +448,9 @@ class ProjectPage extends Component {
       
       {/* {data && <SortableList items={this.props.data_items} onSortEnd={this.props.onEnd} onRemove={(index) => this.props.removeItem(index)}/>} */}
       {data && this.props.data_items.length > 0 && <SortableList items={this.props.data_items} onSortEnd={this.props.onEnd} onRemove={(index) => this.delete(index)}/>}      
-      {!this.props.data_items.length > 0 &&  <p>No Project Items</p>}
+      {!this.props.data_items.length > 0 &&  <p>No Project Items.</p>}
+
+      
     </div>
     );
   }

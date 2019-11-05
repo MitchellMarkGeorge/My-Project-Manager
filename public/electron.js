@@ -12,7 +12,7 @@ function createWindow() {
     height: 680,
     minHeight: 680,
     minWidth: 900, // might rethink minheigt and minwidth 
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f9f9f9',
     //titleBarStyle: 'hidden', // 'hidden-inset' - "removes" titlebar on MacOS 
     show: false, 
     webPreferences: {

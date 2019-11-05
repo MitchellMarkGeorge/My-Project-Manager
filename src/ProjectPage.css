@@ -17,8 +17,9 @@
 } */
 
 .del-button {
-    display: inline;
+    /* display: inline; */
     /* float: right; */
+    /* background-color: #d95252; */
 }
 
 .list {
@@ -26,6 +27,7 @@
     /* height: 40px; */
     
     width: 100%;
+    max-width: 100%;
     border-radius: 3px;
     text-align: center;
     position: relative;
@@ -39,6 +41,7 @@
     display: flex;
     color: #333;
     align-items: center;
+    overflow: auto;
 }
 
 /* .list:hover, .list:active  {
@@ -72,7 +75,7 @@
     /* border: 1px solid #efefef; */
     border-radius: 3px;
     outline: none;
-    width: 400px;
+    /* width: 400px; */
     height: 65%;
     overflow: auto;
 }
@@ -90,4 +93,107 @@
 
 .button:hover {
     background-color: #dbdbdb;
+}
+
+.del-button {
+    background-color: #d95252;
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+    border: none;
+    outline: none;
+    float: right;
+    position: absolute;
+    right: 30px;
+    margin-left: 5px;
+  
+    /* display: inline-block; */
+}
+
+.del-button-project {
+    background-color: #d95252;
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+    border: none;
+    outline: none;
+    float: right;
+    /* top: 10px; */
+    z-index: 0;
+    /* bottom: 35px */
+    position: absolute;
+    right: 30px;
+    margin-left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+  
+    /* display: inline-block; */
+}
+
+/* .modal {
+    height: 250px;
+    width: 400px;
+} */
+
+.ReactModal__Content {
+    position: absolute;
+    width: 300px;
+    height: 250px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px 0 rgba(0,0,97,0.5);
+    overflow: auto;
+    border-radius: 4px;
+    outline: none;
+    padding: 10px;
+ 
+}
+
+.ReactModal__Overlay, .ReactModal__Overlay--after-open {
+    z-index: 1;
+}
+
+.input-modal {
+    padding: 10px;
+    width: 170px;
+    border-radius: 3px;
+    outline: none;
+    text-align: center;
+    z-index: 0;
+    border: 1px solid #efefef;
+    display: block;
+    /* margin-bottom: 10px; */
+    
+    margin: 0 auto;
+}
+
+
+
+/* button {
+    display: inline-block;
+} */
+
+
+.add-button  {
+    width: 70px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+    font-size: 14px;
+    border-radius: 3px;
+    border: 1px solid #efefef;
+}
+
+
+.close-button {
+    width: 100px;
+    height: 40px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    /* font-size: 14px; */
+    border-radius: 3px;
+    border: 1px solid #efefef;
 }
