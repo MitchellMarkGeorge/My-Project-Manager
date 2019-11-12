@@ -23,6 +23,7 @@
       "node_modules/**/*"
     ],
     "mac": {
+      "icon": "build/LogoMakr_1oNNEL.icns",
       "target": [
         "dmg"
       ]
@@ -35,7 +36,8 @@
     "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
     "preelectron-pack": "npm run build",
-    "electron-pack": "npm run build && electron-builder -m",
+    "electron-pack-osx": "npm run build && electron-builder -m",
+    "electron-pack-win": "npm run build && electron-builder -w",
     "electron-dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "eslintConfig": {
