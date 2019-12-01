@@ -38,7 +38,7 @@
     "preelectron-pack": "npm run build",
     "electron-pack-osx": "npm run build && electron-builder -m",
     "electron-pack-win": "npm run build && electron-builder -w",
-    "electron-dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\""
+    "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "concurrently": "^5.0.0",
+    "cross-env": "^6.0.3",
     "electron": "^7.0.0",
     "electron-builder": "^21.2.0",
     "wait-on": "^3.3.0"

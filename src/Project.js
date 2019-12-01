@@ -6,8 +6,8 @@ export class Project {
     
 }
 
-export class ProjectSubItme {
-    name;
-    description;
-    rating;
-}
+// export class ProjectSubItme {
+//     name;
+//     description;
+//     rating;
+// }

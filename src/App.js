@@ -227,6 +227,7 @@ class App extends Component {
       if (this.state.editEnabled) {
         this.setState({editEnabled: false})
       }
+      //event.target.value = '';
       //console.log(this.state.showModal);
     } else return;
   }
@@ -390,7 +391,7 @@ class ProjectPage extends Component {
      
       this.props.addItem(e.target.value);
       //this.setState({input_value: ''})
-
+      e.target.value = '';
       // this.setState(() => ({
       //   input_value: ''
       // }));
